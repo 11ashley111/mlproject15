@@ -6,7 +6,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import r2_score
-import pymysql
+#import pymysql
 
 import pickle
 import numpy as np
@@ -88,6 +88,17 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, param):
                 raise CustomException(f"Error while evaluating model: {model_name} -> {inner_ex}", sys)
 
         return report
+
+    except Exception as e:
+        raise CustomException(e, sys)
+    
+    
+    
+    
+def load_object(file_path):
+    try:
+        with open(file_path, "rb") as file_obj:
+            return pickle.load(file_obj)
 
     except Exception as e:
         raise CustomException(e, sys)
