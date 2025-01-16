@@ -53,3 +53,41 @@ def save_object(file_path, obj):
 
     except Exception as e:
         raise CustomException(e, sys)
+    
+    
+def evaluate_models(X_train, y_train, X_test, y_test, models, param):
+    try:
+        report = {}  # Initialize as a dictionary
+
+        for i in range(len(list(models))):
+            model_name = list(models.keys())[i]
+            model = list(models.values())[i]
+            para = param[model_name]
+
+            try:
+                # Perform GridSearchCV
+                gs = GridSearchCV(estimator=model, param_grid=para, cv=3, n_jobs=-1, verbose=3)
+                gs.fit(X_train, y_train)
+
+                # Update model with best parameters
+                model.set_params(**gs.best_params_)
+                model.fit(X_train, y_train)
+
+                # Predictions
+                y_train_pred = model.predict(X_train)
+                y_test_pred = model.predict(X_test)
+
+                # Evaluate performance
+                train_model_score = r2_score(y_train, y_train_pred)
+                test_model_score = r2_score(y_test, y_test_pred)
+
+                # Update the report dictionary using your preferred logic
+                report[list(models.keys())[i]] = test_model_score
+
+            except Exception as inner_ex:
+                raise CustomException(f"Error while evaluating model: {model_name} -> {inner_ex}", sys)
+
+        return report
+
+    except Exception as e:
+        raise CustomException(e, sys)
